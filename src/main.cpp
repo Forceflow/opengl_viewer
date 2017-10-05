@@ -5,11 +5,6 @@
 // OpenGL
 #include <GL/glew.h> // Take care: GLEW should be included before GLFW
 #include <GLFW/glfw3.h>
-// CUDA
-#include <cuda_runtime.h>
-#include <cuda_gl_interop.h>
-#include "libs/helper_cuda.h"
-#include "libs/helper_cuda_gl.h"
 // C++ libs
 #include <string>
 #include <filesystem>
@@ -31,18 +26,6 @@ GLuint VBO, VAO, EBO;
 GLSLShader drawtex_f; // GLSL fragment shader
 GLSLShader drawtex_v; // GLSL fragment shader
 GLSLProgram shdrawtex; // GLSLS program for textured draw
-
-// Cuda <-> OpenGl interop resources
-void* cuda_dev_render_buffer; // Cuda buffer for initial render
-struct cudaGraphicsResource* cuda_tex_resource;
-GLuint opengl_tex_cuda;  // OpenGL Texture for cuda result
-extern "C" void
-launch_cudaRender(dim3 grid, dim3 block, int sbytes, unsigned int *g_odata, int imgw);
-
-// CUDA
-size_t size_tex_data;
-unsigned int num_texels;
-unsigned int num_values;
 
 // Regular OpenGL Texture
 GLuint texture0;
@@ -90,29 +73,9 @@ GLuint indices[] = {  // Note that we start from 0!
 	1, 2, 3   // Second Triangle
 };
 
-// Create 2D OpenGL texture in gl_tex and bind it to CUDA in cuda_tex
-void createGLTextureForCUDA(GLuint* gl_tex, cudaGraphicsResource** cuda_tex, unsigned int size_x, unsigned int size_y)
-{
-	// create an OpenGL texture
-	glGenTextures(1, gl_tex); // generate 1 texture
-	glBindTexture(GL_TEXTURE_2D, *gl_tex); // set it as current target
-	// set basic texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // clamp s coordinate
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // clamp t coordinate
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// Specify 2D texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8UI_EXT, size_x, size_y, 0, GL_RGBA_INTEGER_EXT, GL_UNSIGNED_BYTE, NULL);
-	glGenerateMipmap(GL_TEXTURE_2D); // This is necessary for texture to show up in RenderDoc ... why?
-	// Register this texture with CUDA
-	checkCudaErrors(cudaGraphicsGLRegisterImage(cuda_tex, *gl_tex, GL_TEXTURE_2D, cudaGraphicsRegisterFlagsWriteDiscard));
-	SDK_CHECK_ERROR_GL();
-}
 
 void initGLBuffers()
 {
-	// create texture that will receive the result of cuda
-	createGLTextureForCUDA(&opengl_tex_cuda, &cuda_tex_resource, WIDTH, HEIGHT);
 	// create shader program
 	drawtex_v = GLSLShader("Textured draw vertex shader", glsl_drawtex_vertshader_src, GL_VERTEX_SHADER);
 	drawtex_f = GLSLShader("Textured draw fragment shader", glsl_drawtex_fragshader_src, GL_FRAGMENT_SHADER);
@@ -138,14 +101,6 @@ bool initGL(){
 	return true;
 }
 
-void initCUDABuffers()
-{
-	// set up vertex data parameters
-	num_texels = WIDTH * WIDTH;
-	num_values = num_texels * 4;
-	size_tex_data = sizeof(GLubyte) * num_values;
-	checkCudaErrors(cudaMalloc(&cuda_dev_render_buffer, size_tex_data)); // Allocate CUDA memory for color output
-}
 
 bool initGLFW(){
 	if (!glfwInit()) exit(EXIT_FAILURE);
@@ -162,37 +117,8 @@ bool initGLFW(){
 	return true;
 }
 
-void generateCUDAImage()
-{
-	// calculate grid size
-	dim3 block(16, 16, 1);
-	dim3 grid(WIDTH / block.x, HEIGHT / block.y, 1); // 2D grid, every thread will compute a pixel
-	launch_cudaRender(grid, block, 0, (unsigned int *) cuda_dev_render_buffer, WIDTH); // launch with 0 additional shared memory allocated
-
-	//GLbyte test[8] = { 0,0,0,0,0,0,0,0 };
-	//checkCudaErrors(cudaMemcpy(&test, cuda_dev_render_buffer, 8, cudaMemcpyDeviceToHost));
-
-	// We want to copy cuda_dev_render_buffer data to the texture
-	// Map buffer objects to get CUDA device pointers
-	cudaArray *texture_ptr;
-	checkCudaErrors(cudaGraphicsMapResources(1, &cuda_tex_resource, 0));
-	checkCudaErrors(cudaGraphicsSubResourceGetMappedArray(&texture_ptr, cuda_tex_resource, 0, 0));
-
-	int num_texels = WIDTH * HEIGHT;
-	int num_values = num_texels * 4;
-	int size_tex_data = sizeof(GLubyte) * num_values;
-	checkCudaErrors(cudaMemcpyToArray(texture_ptr, 0, 0, cuda_dev_render_buffer, size_tex_data, cudaMemcpyDeviceToDevice));
-	
-	//GLbyte test2[8] = { 0,0,0,0,0,0,0,0 };
-	//cudaMemcpy2DFromArray(&test2, 0, texture_ptr, 1, 0, 8, 1, cudaMemcpyDeviceToHost);
-	
-	checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_tex_resource, 0));
-}
-
 void display(void) {
 	glfwPollEvents(); // Process events
-
-	generateCUDAImage();
 	
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Clear the colorbuffer
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -220,9 +146,7 @@ int main(int argc, char *argv[]) {
 	printGlewInfo();
 	printGLInfo();
 
-	findCudaGLDevice(argc, (const char **)argv);
 	initGLBuffers();
-	initCUDABuffers();
 
 	texture0 = loadTextureFromFile(std::string("D:/container.jpg"));
 	
