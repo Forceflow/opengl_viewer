@@ -124,7 +124,7 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, opengl_tex_cuda);
+	glBindTexture(GL_TEXTURE_2D, texture0);
 	shdrawtex.use(); // we gonna use this compiled GLSL program
 	glUniform1i(glGetUniformLocation(shdrawtex.program, "tex"), 0);
 
