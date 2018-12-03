@@ -216,3 +216,15 @@ ModelManifest.xml
 #nSight
 *.nvvp
 *.nvprof
+
+# Executables
+*.exe
+*.out
+*.app
+*.opendb
+*.iobj
+*.ipdb
+*.db
+
+# Bin folders
+/bin*
