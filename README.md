@@ -3,3 +3,5 @@ A barebones VS project to get started with modern OpenGL development. Initialize
  - Uses GLM for vector math
  - Uses GLEW for OpenGL Extension loading
  - Uses stb's image loading for loading textures
+
+![Toy OpenGL Viewer example image](https://github.com/Forceflow/opengl_viewer/raw/master/html/toyopengl.JPG)
