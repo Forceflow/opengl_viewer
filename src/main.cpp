@@ -17,8 +17,8 @@ using namespace std;
 
 // GLFW
 GLFWwindow* window;
-int WIDTH = 256;
-int HEIGHT = 256;
+int WIDTH = 512;
+int HEIGHT = 512;
 
 // OpenGL
 GLuint VBO, VAO, EBO;
@@ -48,23 +48,22 @@ static const char *glsl_drawtex_vertshader_src =
 
 static const char *glsl_drawtex_fragshader_src =
 "#version 330 core\n"
-"uniform usampler2D tex;\n"
+"uniform sampler2D tex;\n"
 "in vec3 ourColor;\n"
 "in vec2 ourTexCoord;\n"
 "out vec4 color;\n"
 "void main()\n"
 "{\n"
-"   	vec4 c = texture(tex, ourTexCoord);\n"
-"   	color = c / 255.0;\n"
+"   	color = texture(tex, ourTexCoord);\n"
 "}\n";
 
 // QUAD GEOMETRY
 GLfloat vertices[] = {
 	// Positions          // Colors           // Texture Coords
-	0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // Top Right
-	0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Bottom Right
-	-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Left
-	-0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // Top Left 
+	0.75f, 0.75f, 0.75f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // Top Right
+	0.75f, -0.75f, 0.75f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Bottom Right
+	-0.75f, -0.75f, 0.75f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Left
+	-0.75f, 0.75f, 0.75f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // Top Left 
 };
 // you can also put positions, colors and coordinates in seperate VBO's
 GLuint indices[] = {  // Note that we start from 0!
@@ -147,7 +146,8 @@ int main(int argc, char *argv[]) {
 
 	initGLBuffers();
 
-	texture0 = loadTextureFromFile(std::string("D:/container.jpg"));
+	stbi_set_flip_vertically_on_load(true);
+	texture0 = loadTextureFromFile(std::string("texture.jpg"));
 	
 	// Generate buffers
 	glGenVertexArrays(1, &VAO);
