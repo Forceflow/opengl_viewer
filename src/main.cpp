@@ -81,7 +81,7 @@ void initGLBuffers()
 	drawtex_f = GLSLShader("Textured draw fragment shader", glsl_drawtex_fragshader_src, GL_FRAGMENT_SHADER);
 	shdrawtex = GLSLProgram(&drawtex_v, &drawtex_f);
 	shdrawtex.compile();	
-	SDK_CHECK_ERROR_GL();
+	// TODO: check error function
 }
 
 // Keyboard
@@ -97,20 +97,20 @@ bool initGL(){
 		exit(1);
 	}
 	glViewport(0, 0, WIDTH, HEIGHT); // viewport for x,y to normalized device coordinates transformation
-	SDK_CHECK_ERROR_GL();
+	// TODO: check error function
 	return true;
 }
 
 
 bool initGLFW(){
-	if (!glfwInit()) exit(EXIT_FAILURE);
+	if (!glfwInit()) exit(1);
 	// These hints switch the OpenGL profile to core
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	window = glfwCreateWindow(WIDTH, WIDTH, "The Simplest OpenGL Quad", NULL, NULL);
-	if (!window){ glfwTerminate(); exit(EXIT_FAILURE); }
+	if (!window){ glfwTerminate(); exit(1); }
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 	glfwSetKeyCallback(window, keyboardfunc);
@@ -132,7 +132,7 @@ void display(void) {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0); // unbind VAO
 
-	SDK_CHECK_ERROR_GL();
+	// TODO: check error function
 	
 	// Swap the screen buffers
 	glfwSwapBuffers(window);
@@ -191,5 +191,5 @@ int main(int argc, char *argv[]) {
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();
-	exit(EXIT_SUCCESS);
+	exit(0);
 }
