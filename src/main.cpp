@@ -7,7 +7,6 @@
 #include <GLFW/glfw3.h>
 // C++ libs
 #include <string>
-#include <filesystem>
 #include "shader_tools/GLSLProgram.h"
 #include "shader_tools/GLSLShader.h"
 #include "gl_tools.h"
