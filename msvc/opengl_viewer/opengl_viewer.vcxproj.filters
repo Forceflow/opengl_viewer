@@ -57,4 +57,7 @@
       <Filter>shader_tools</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="custom_includes.props" />
+  </ItemGroup>
 </Project>
