@@ -10,10 +10,10 @@ private:
 	GLSLShader* vertex_shader;
 	GLSLShader* fragment_shader;
 public:
-	GLSLProgram();
-	GLSLProgram(GLSLShader* vertex, GLSLShader* fragment);
-	void compile();
-	void use();
+	GLSLProgram::GLSLProgram();
+	GLSLProgram::GLSLProgram(GLSLShader* vertex, GLSLShader* fragment);
+	void GLSLProgram::compile();
+	void GLSLProgram::use();
 private:
-	void printLinkError(GLuint program);
+	void GLSLProgram::printLinkError(GLuint program);
 };
