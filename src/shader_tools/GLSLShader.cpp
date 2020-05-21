@@ -1,24 +1,37 @@
 #include "GLSLShader.h"
 
 GLSLShader::GLSLShader() :
-	shader(0), compiled(false), shadertype(0), shader_name(""), shader_src("") {
+	shaderID(0), compiled(false), shadertype(0), shader_name(""), shader_src("") {
+}
+
+GLSLShader::GLSLShader(const std::string& shader_name, GLenum shadertype) :
+	shaderID(0), compiled(false), shadertype(shadertype), shader_name(shader_name), shader_src("") {
 }
 
 GLSLShader::GLSLShader(const std::string &shader_name, const char *shader_text, GLenum shadertype) :
-	shader(0), compiled(false), shadertype(shadertype), shader_name(shader_name), shader_src(std::string(shader_text)) {
+	shaderID(0), compiled(false), shadertype(shadertype), shader_name(shader_name), shader_src(std::string(shader_text)) {
 }
 
 GLSLShader::GLSLShader(const std::string &shader_name, const std::string &shader_text, GLenum shadertype) :
-	shader(0), compiled(false), shadertype(shadertype), shader_name(shader_name), shader_src(shader_text) {
+	shaderID(0), compiled(false), shadertype(shadertype), shader_name(shader_name), shader_src(shader_text) {
+}
+
+void GLSLShader::loadFromFile(const char* filepath) {
+	printf("(S) (%s) Reading from %s ... \n", getIDString().c_str(), _fullpath(NULL, filepath, 200));
+	shader_src = "";
+	std::ifstream fileStream(filepath, std::ios::in);
+
+	std::string line = "";
+	while (!fileStream.eof()) {
+		std::getline(fileStream, line);
+		shader_src.append(line + "\n");
+	}
+
+	fileStream.close();
 }
 
 std::string GLSLShader::getSrc() const {
 	return shader_src;
-}
-
-void GLSLShader::setSrc(const std::string &new_source) {
-	shader_src = new_source;
-	compiled = false; // setting new source forces recompile
 }
 
 void GLSLShader::setSrc(const char* new_source) {
@@ -27,19 +40,20 @@ void GLSLShader::setSrc(const char* new_source) {
 }
 
 void GLSLShader::compile() {
-	printf("(S) Compiling shader \"%s\" ... ", this->shader_name.c_str());
-	shader = glCreateShader(shadertype);
-	glShaderSource(shader, 1, ShaderStringHelper(shader_src), NULL);
-	glCompileShader(shader);
+	printf("(S) (%s) Compiling ... ", getIDString().c_str());
+	shaderID = glCreateShader(shadertype);
+	glShaderSource(shaderID, 1, ShaderStringHelper(shader_src), NULL);
+	glCompileShader(shaderID);
 	// check if shader compiled
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
-		getCompilationError(shader);
-		glDeleteShader(shader);
+		getCompilationError(shaderID);
+		glDeleteShader(shaderID);
 		compiled = false;
 	}
 	else {
-		printf("OK - Shader ID: (%i) \n", shader);
+		compiled = true;
+		printf("OK - ID: %i \n", shaderID);
 	}
 }
 
@@ -48,6 +62,13 @@ void GLSLShader::getCompilationError(GLuint shader) {
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, (GLint *)&infologLength);
 	char* infoLog = (char *)malloc(infologLength);
 	glGetShaderInfoLog(shader, infologLength, NULL, infoLog); // will include terminate char
-	printf("(S) Shader compilation error:\n%s\n", infoLog);
+	printf("\n (S) (%s) Shader compilation error:\n%s\n", getIDString().c_str(), infoLog);
 	free(infoLog);
+}
+
+std::string GLSLShader::getIDString() {
+	if(shaderID == 0)
+		return shader_name;
+	else
+		return shader_name + ":" + std::to_string(shaderID);
 }

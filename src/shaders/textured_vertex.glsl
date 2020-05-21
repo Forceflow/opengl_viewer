@@ -1,12 +1,16 @@
 #version 330 core
-uniform sampler2D tex0;
 
-in vec3 ourColor;
-in vec2 ourTexCoord;
+// Layout: get attrib at location X and make it available as Y
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 color
+layout (location = 2) in vec2 texCoord;
 
-out vec4 color;
+out vec3 ourColor;
+out vec2 ourTexCoord;
 
 void main()
 {
-   	color = texture(tex0, ourTexCoord);
+	gl_Position = vec4(position, 1.0f);
+	ourColor = color;
+	ourTexCoord = texCoord;\
 };

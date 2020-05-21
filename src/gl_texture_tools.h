@@ -7,9 +7,9 @@
 #include "libs/stb_image.h"
 
 GLuint loadTextureFromFile(std::string filepath) {
-	GLuint texture0;
-	glGenTextures(1, &texture0); // Load simple OpenGL texture
-	glBindTexture(GL_TEXTURE_2D, texture0); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+	GLuint texture;
+	glGenTextures(1, &texture); // Load simple OpenGL texture
+	glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
 											// set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -21,11 +21,11 @@ GLuint loadTextureFromFile(std::string filepath) {
 	printf("Loading texture from %s ... ", filepath.c_str());
 	unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
 	if (data) {
-		printf("OK - Texture ID: (%i) \n", texture0);
+		printf("OK - ID: %i \n", texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else { printf("Error: No texture found. \n"); }
 	stbi_image_free(data);
-	return texture0;
+	return texture;
 }

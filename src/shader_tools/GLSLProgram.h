@@ -4,16 +4,17 @@
 
 class GLSLProgram {
 public:
-	GLuint program;
+	GLuint programID;
 	bool linked;
-private:
+	std::string program_name; // Shader name
 	GLSLShader* vertex_shader;
 	GLSLShader* fragment_shader;
 public:
 	GLSLProgram::GLSLProgram();
-	GLSLProgram::GLSLProgram(GLSLShader* vertex, GLSLShader* fragment);
+	GLSLProgram::GLSLProgram(const std::string& program_name, GLSLShader* vertex, GLSLShader* fragment);
 	void GLSLProgram::compile();
 	void GLSLProgram::use();
+	std::string GLSLProgram::getIDString();
 private:
 	void GLSLProgram::printLinkError(GLuint program);
 };

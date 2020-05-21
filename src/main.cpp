@@ -75,9 +75,11 @@ GLuint indices[] = {  // Note that we start from 0!
 void initGLBuffers()
 {
 	// create shader program
-	drawtex_v = GLSLShader("Textured draw vertex shader", glsl_drawtex_vertshader_src, GL_VERTEX_SHADER);
-	drawtex_f = GLSLShader("Textured draw fragment shader", glsl_drawtex_fragshader_src, GL_FRAGMENT_SHADER);
-	shdrawtex = GLSLProgram(&drawtex_v, &drawtex_f);
+	drawtex_v = GLSLShader("TextureVertex", GL_VERTEX_SHADER);
+	drawtex_v.loadFromFile("textured_vertex.glsl");
+	drawtex_f = GLSLShader("TextureFragment", GL_FRAGMENT_SHADER);
+	drawtex_f.loadFromFile("textured_fragment.glsl");
+	shdrawtex = GLSLProgram("Textured", &drawtex_v, &drawtex_f);
 	shdrawtex.compile();	
 	// TODO: check error function
 }
@@ -124,7 +126,7 @@ void display(void) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture0);
 	shdrawtex.use(); // we gonna use this compiled GLSL program
-	glUniform1i(glGetUniformLocation(shdrawtex.program, "tex"), 0);
+	glUniform1i(glGetUniformLocation(shdrawtex.programID, "tex"), 0);
 
 	glBindVertexArray(VAO); // binding VAO automatically binds EBO
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
