@@ -1,8 +1,8 @@
 # Toy OpenGL Viewer
 A barebones VS project to get started with modern OpenGL development. Initializes OpenGL context, compiles basic shaders and displays a textured quad consisting of 2 triangles.
- - Uses GLFW for context and window creation
- - Uses GLEW for OpenGL Extension loading
- - Uses stb's image loading for loading textures
+ - Uses [GLAD](https://glad.dav1d.de/) for OpenGL Extension loading
+ - Uses [GLFW](https://www.glfw.org/) for context and window creation
+ - Uses [stb](https://github.com/nothings/stb)'s image loader header for loading textures
  
  # Example
 
