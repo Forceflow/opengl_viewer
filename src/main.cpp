@@ -44,7 +44,7 @@ GLuint indices[] = {  // Note that we start from 0!
 void initGLBuffers()
 {
 	// create shader program
-	shdrawtex = GLSLProgram("Textured", "textured_vertex.glsl", "textured_fragment.glsl");
+	shdrawtex = GLSLProgram("Textured", "src/shaders/textured_vertex.glsl", "src/shaders/textured_fragment.glsl");
 	shdrawtex.compile();	
 	// TODO: check error function
 }
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 	initGLBuffers();
 
 	stbi_set_flip_vertically_on_load(true);
-	texture0 = loadTextureFromFile(std::string("texture.jpg"));
+	texture0 = loadTextureFromFile(std::string("resources/texture.jpg"));
 	
 	// Generate buffers
 	glGenVertexArrays(1, &VAO);
