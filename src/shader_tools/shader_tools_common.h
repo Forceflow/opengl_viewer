@@ -4,7 +4,7 @@
 #define GLEW_STATIC
 #endif
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <cstdio>
 #include <string>
 #include <fstream>

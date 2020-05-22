@@ -28,6 +28,7 @@
     <ClInclude Include="..\..\src\util_io.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\glad.c" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\shader_tools\GLSLProgram.cpp" />
     <ClCompile Include="..\..\src\util_io.cpp" />
@@ -94,18 +95,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\bin.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion)\</OutDir>
+    <IncludePath>..\..\include;$(GLFW_DIR)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\bin.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion)\</OutDir>
+    <IncludePath>..\..\include;$(GLFW_DIR)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\bin.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion)\</OutDir>
+    <IncludePath>..\..\include;$(GLFW_DIR)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\bin.Win$(PlatformArchitecture).vs$(PlatformToolsetVersion)\</OutDir>
+    <IncludePath>..\..\include;$(GLFW_DIR)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

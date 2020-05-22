@@ -1,13 +1,9 @@
 #pragma once
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <cstdio>
 
 using namespace std;
-
-void printGlewInfo(){
-	printf("GLEW: Glew version: %s \n", glewGetString(GLEW_VERSION));
-}
 
 void printGLInfo(){
 	printf("OpenGL: GL version: %s \n", glGetString(GL_VERSION));

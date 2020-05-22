@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <cstdio>
 #include <string>
 #define STB_IMAGE_IMPLEMENTATION

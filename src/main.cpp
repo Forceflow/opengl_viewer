@@ -3,7 +3,7 @@
 #endif
 
 // OpenGL
-#include <GL/glew.h> // Take care: GLEW should be included before GLFW
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // C++ libs
 #include <string>
@@ -54,15 +54,11 @@ void keyboardfunc(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 bool initGL(){
-	glewExperimental = GL_TRUE; // need this to enforce core profile
-	GLenum err = glewInit();
-	glGetError(); // parse first error
-	if (err != GLEW_OK) {// Problem: glewInit failed, something is seriously wrong.
-		printf("glewInit failed: %s /n", glewGetErrorString(err));
-		exit(1);
+	if (!gladLoadGL()) {
+		printf("Something went wrong setting up the OpenGL context\n");
+		exit(-1);
 	}
 	glViewport(0, 0, WIDTH, HEIGHT); // viewport for x,y to normalized device coordinates transformation
-	// TODO: check error function
 	return true;
 }
 
@@ -108,7 +104,6 @@ int main(int argc, char *argv[]) {
 	initGL();
 
 	printGLFWInfo(window);
-	printGlewInfo();
 	printGLInfo();
 
 	initGLBuffers();
