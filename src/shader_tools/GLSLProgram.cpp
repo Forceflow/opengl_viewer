@@ -1,41 +1,42 @@
 #include "GLSLProgram.h"
 
-GLSLProgram::GLSLProgram() : programID(0), vertex_shader(NULL), fragment_shader(NULL), linked(false) {}
+GLSLProgram::GLSLProgram() : programID(0), vertex_path(""), fragment_path(""), linked(false) {}
 
-GLSLProgram::GLSLProgram(const std::string& program_name, GLSLShader* vertex, GLSLShader* fragment) : 
-	programID(0), program_name(program_name), vertex_shader(vertex), fragment_shader(fragment), linked(false) {}
+GLSLProgram::GLSLProgram(const std::string& program_name, const std::string& vertex_path, const std::string& fragment_path) :
+	programID(0), program_name(program_name), vertex_path(vertex_path), fragment_path(fragment_path), linked(false) {}
 
 void GLSLProgram::compile() {
-	// create empty program
-	programID = glCreateProgram();
-	// try to attach all shaders
-	GLSLShader* shaders[2] = { vertex_shader, fragment_shader };
-	for (unsigned int i = 0; i < 2; i++) {
-		if (shaders[i] != NULL) {
-			if (!shaders[i]->compiled) { shaders[i]->compile(); } // try to compile shader if not yet compiled
-			if (shaders[i]->compiled) {
-				glAttachShader(programID, shaders[i]->shaderID);
-				printf("(P) (%s) Attached shader %s\n", getIDString().c_str(), shaders[i]->getIDString().c_str());
-			}
-			else {
-				printf("(P) (%s) Failed to attach shader %s", getIDString().c_str(), shaders[i]->getIDString().c_str());
-				glDeleteProgram(programID);
-				return;
-			}
-		}
+	// delete previous program if there was any
+	if (programID != 0) {
+		glDeleteProgram(programID);
 	}
-	// try to link program
+	// create new program
+	programID = glCreateProgram();
+	// compile all shaders
+	printf("(P) (%s) Compiling vertex shader %s ... ", getIDString().c_str(), vertex_path.c_str());
+	GLuint vertexID = this->compileShader(vertex_path.c_str(), GL_VERTEX_SHADER);
+	printf("(P) (%s) Compiling fragment shader %s ... ", getIDString().c_str(), fragment_path.c_str());
+	GLuint fragmentID = this->compileShader(fragment_path.c_str(), GL_FRAGMENT_SHADER);
+	// attach shaders
+	glAttachShader(programID, vertexID);
+	glAttachShader(programID, fragmentID);
+	// link program
+	printf("(P) (%s) Linking program ... ", getIDString().c_str());
 	glLinkProgram(programID);
 	GLint isLinked = 0;
 	glGetProgramiv(programID, GL_LINK_STATUS, &isLinked); // check if program linked
 	if (isLinked == GL_FALSE) {
+		printf("Fail\n");
 		printLinkError(programID);
 		glDeleteProgram(programID);
 		linked = false;
 	}
 	else {
 		linked = true;
-		printf("(P) (%s) Linked program \n", getIDString().c_str());
+		printf("OK\n");
+		// cleanup shader objects
+		glDeleteShader(vertexID);
+		glDeleteShader(fragmentID);
 	}
 }
 
@@ -50,6 +51,35 @@ void GLSLProgram::printLinkError(GLuint program) {
 	glGetProgramInfoLog(program, infologLength, NULL, infoLog); // will include terminate char
 	printf("(P) (%s) Program compilation error: %s\n", getIDString().c_str(), infoLog);
 	free(infoLog);
+}
+
+GLuint GLSLProgram::compileShader(const std::string& shader_path, GLenum shadertype) {
+	// Load from file
+	std::string shader_src = loadFileToString(shader_path.c_str());
+	// Compile
+	GLuint id;GLint compiled;
+	id = glCreateShader(shadertype);
+	glShaderSource(id, 1, ShaderStringHelper(shader_src), NULL);
+	glCompileShader(id);
+	// check if shader compiled
+	glGetShaderiv(id, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		int infologLength = 0;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, (GLint*)&infologLength);
+		char* infoLog = (char*)malloc(infologLength);
+		glGetShaderInfoLog(id, infologLength, NULL, infoLog); // will include terminate char
+		printf("Fail\n");
+		printf("Shader %s compilation error:\n%s\n", shader_path.c_str(), infoLog);
+		free(infoLog);
+		glDeleteShader(id);
+		compiled = false;
+		return NULL;
+	}
+	else {
+		printf("OK\n");
+		compiled = true;
+		return id;
+	}
 }
 
 std::string GLSLProgram::getIDString() {

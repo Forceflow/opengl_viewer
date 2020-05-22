@@ -8,7 +8,6 @@
 // C++ libs
 #include <string>
 #include "shader_tools/GLSLProgram.h"
-#include "shader_tools/GLSLShader.h"
 #include "gl_tools.h"
 #include "glfw_tools.h"
 #include "gl_texture_tools.h"
@@ -22,40 +21,10 @@ int HEIGHT = 512;
 
 // OpenGL
 GLuint VBO, VAO, EBO;
-GLSLShader drawtex_f; // GLSL fragment shader
-GLSLShader drawtex_v; // GLSL fragment shader
 GLSLProgram shdrawtex; // GLSLS program for textured draw
 
 // Regular OpenGL Texture
 GLuint texture0;
-
-// Shaders from CUDA2GL sample
-static const char *glsl_drawtex_vertshader_src =
-"#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"layout (location = 1) in vec3 color;\n"
-"layout (location = 2) in vec2 texCoord;\n"
-"\n"
-"out vec3 ourColor;\n"
-"out vec2 ourTexCoord;\n"
-"\n"
-"void main()\n"
-"{\n"
-"	gl_Position = vec4(position, 1.0f);\n"
-"	ourColor = color;\n"
-"	ourTexCoord = texCoord;\n"
-"}\n";
-
-static const char *glsl_drawtex_fragshader_src =
-"#version 330 core\n"
-"uniform sampler2D tex;\n"
-"in vec3 ourColor;\n"
-"in vec2 ourTexCoord;\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"   	color = texture(tex, ourTexCoord);\n"
-"}\n";
 
 // QUAD GEOMETRY
 GLfloat vertices[] = {
@@ -75,11 +44,7 @@ GLuint indices[] = {  // Note that we start from 0!
 void initGLBuffers()
 {
 	// create shader program
-	drawtex_v = GLSLShader("TextureVertex", GL_VERTEX_SHADER);
-	drawtex_v.loadFromFile("textured_vertex.glsl");
-	drawtex_f = GLSLShader("TextureFragment", GL_FRAGMENT_SHADER);
-	drawtex_f.loadFromFile("textured_fragment.glsl");
-	shdrawtex = GLSLProgram("Textured", &drawtex_v, &drawtex_f);
+	shdrawtex = GLSLProgram("Textured", "textured_vertex.glsl", "textured_fragment.glsl");
 	shdrawtex.compile();	
 	// TODO: check error function
 }
